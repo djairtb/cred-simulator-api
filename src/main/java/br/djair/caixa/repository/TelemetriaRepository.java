@@ -1,4 +1,9 @@
 package br.djair.caixa.repository;
 
-public class TelemetriaRepository {
+import br.djair.caixa.model.Telemetria;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
+public class TelemetriaRepository implements PanacheRepository<Telemetria> {
 }

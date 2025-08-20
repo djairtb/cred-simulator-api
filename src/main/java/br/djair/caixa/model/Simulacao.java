@@ -1,5 +1,6 @@
 package br.djair.caixa.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -9,7 +10,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -43,5 +43,6 @@ public class Simulacao {
     private BigDecimal valorTotalParcelas;
 
     @OneToMany(mappedBy = "simulacao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // sinaliza que é o pai para n dar erro de serializacao de json
     private List<SimulacaoParcela> parcelas = new ArrayList<>();
 }

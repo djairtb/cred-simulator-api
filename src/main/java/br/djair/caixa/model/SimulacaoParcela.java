@@ -1,6 +1,7 @@
 package br.djair.caixa.model;
 
 import br.djair.caixa.model.enums.TipoParcelaEnum;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -19,7 +20,8 @@ public class SimulacaoParcela {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_SIMULACAO", nullable = false)
-    private Integer idSimulacao;
+    @JsonBackReference // evitar dar caquinha e estourar serializacao de json
+    private Simulacao simulacao;
 
     @NotNull
     @Column(name = "NU_PARCELA")

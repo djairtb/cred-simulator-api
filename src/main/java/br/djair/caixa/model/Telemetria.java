@@ -16,34 +16,36 @@ import java.time.LocalDateTime;
 public class Telemetria {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_TELEMETRIA")
     private Integer id;
-
-    @CreationTimestamp
-    @Column(name = "DT_SIMULACAO", updatable = false)
-    private LocalDateTime dataCriacao;
 
     @NotNull
     @Column(name = "NM_ENDPOINT")
     private String nomeEndpoint;
 
-    @NotNull
-    @Column(name ="NU_MILISSEGUNDOS")
-    private Integer milissegundos;
+    @CreationTimestamp
+    @Column(name = "DT_ATUALIZACAO")
+    private LocalDateTime dataCriacao;
 
     @NotNull
-    @Column(name = "TS_INICIO")
-    private LocalDateTime inicio;
+    @Column(name ="NU_MAX_MILIS")
+    private long maximoMilissegundos;
 
     @NotNull
-    @Column(name = "TS_FIM")
-    private LocalDateTime fim;
+    @Column(name ="NU_TOTAL_MILIS")
+    private long totalMilissegundos;
 
     @NotNull
-    @Column(name = "IC_STATUS")
-    @Enumerated(EnumType.STRING)
-    private StatusTelemetriaEnum status;
+    @Column(name ="NU_MEDIA_MILIS")
+    private long mediaMilissegundos;
 
+    @NotNull
+    @Column(name = "NU_CHAMADAS")
+    private long totalChamadas;
 
+    @NotNull
+    @Column(name = "NU_SUCESSO_CHAMADAS")
+    private long sucessoChamadas;
 
 }
