@@ -1,5 +1,6 @@
 package br.djair.caixa.interceptor;
 
+import br.djair.caixa.store.TelemetriaMinTimeStore;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -17,6 +18,8 @@ import jakarta.ws.rs.core.UriInfo;
 @TelemetriaNotation
 @Interceptor
 public class TelemetriaInterceptor {
+    @Inject
+    TelemetriaMinTimeStore minTimeStore;
 
     @Inject
     MeterRegistry registry;
@@ -49,8 +52,10 @@ public class TelemetriaInterceptor {
     }
 
     private void pararTimer(String endpoint, Timer.Sample sample) {
-        sample.stop(Timer.builder("http.server.requests")
+        long durationNs = sample.stop(Timer.builder("http.server.requests")
                 .tag("endpoint", endpoint)
                 .register(registry));
+        long durationMs = durationNs / 1_000_000;
+        minTimeStore.updateMin(endpoint,durationMs);
     }
 }

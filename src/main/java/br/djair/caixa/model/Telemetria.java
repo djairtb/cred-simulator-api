@@ -25,12 +25,16 @@ public class Telemetria {
     private String nomeEndpoint;
 
     @CreationTimestamp
-    @Column(name = "DT_ATUALIZACAO")
+    @Column(name = "DT_METRICA")
     private LocalDateTime dataCriacao;
 
     @NotNull
     @Column(name ="NU_MAX_MILIS")
     private long maximoMilissegundos;
+
+    @NotNull
+    @Column(name ="NU_MIN_MILIS")
+    private long minimoMilissegundos;
 
     @NotNull
     @Column(name ="NU_TOTAL_MILIS")
@@ -42,7 +46,7 @@ public class Telemetria {
 
     @NotNull
     @Column(name = "NU_CHAMADAS")
-    private long totalChamadas;
+    private Integer totalChamadas;
 
     @NotNull
     @Column(name = "NU_SUCESSO_CHAMADAS")
