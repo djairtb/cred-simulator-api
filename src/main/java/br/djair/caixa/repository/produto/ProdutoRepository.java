@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class ProdutoRepository implements PanacheRepository<Produto> {
-    @PersistenceContext
+    @PersistenceContext(unitName = "sqlserver")
     EntityManager em;
     public Optional<Produto> buscarProdutoFiltrado(BigDecimal valorDesejado, int prazo) {
         return em.createNativeQuery(

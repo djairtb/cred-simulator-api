@@ -5,6 +5,7 @@ import br.djair.caixa.model.simulacao.SimulacaoParcela;
 import br.djair.caixa.model.produto.Produto;
 import br.djair.caixa.repository.SimulacaoRepository;
 import br.djair.caixa.service.ProdutoService;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -48,11 +49,8 @@ public class SimulacaoService {
     }
 
     public List<Simulacao> listarTodas() {
-        return simulacaoRepository.listAll();
+        List<Simulacao> todas = simulacaoRepository.listAll();
+        return todas;
     }
 
-//    public List<Object[]> listarPorProdutoEDia() {
-//        return simulacaoRepository.buscarAgrupadoPorProdutoEDia();
-//    }
-//
 }

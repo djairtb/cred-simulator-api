@@ -14,7 +14,7 @@ import java.util.List;
 public class CalculadoraService {
 
     //isso aqui define a precisao dos caculos com BigDecimal e aredonda para cima xD
-    private static final MathContext precisao = new MathContext(12, RoundingMode.HALF_UP);
+    private static final MathContext precisao = new MathContext(12, RoundingMode.HALF_EVEN);
 
     public List<SimulacaoParcela> calcularModoSAC(BigDecimal valor, BigDecimal taxaMensal, int prazoMeses) {
         List<SimulacaoParcela> parcelas = new ArrayList<>();
@@ -47,10 +47,10 @@ public class CalculadoraService {
         BigDecimal umMaisTaxaMensal = BigDecimal.ONE.add(taxaMensal, precisao);
 
         // (1 + taxaMensal)^-prazo
-        BigDecimal potencia = umMaisTaxaMensal.pow((prazoMeses*-1), precisao);
-
+        BigDecimal potencia = BigDecimal.ONE.divide(umMaisTaxaMensal.pow(prazoMeses, precisao), precisao);
         //(1 - (1 + taxaMensal)^(-prazo) )
-        BigDecimal potenciaMenosUm = potencia.subtract(BigDecimal.ONE, precisao);
+
+        BigDecimal potenciaMenosUm = BigDecimal.ONE.subtract(potencia, precisao);
 
         //saldoDevedor * taxaMensal / (1 - (1 + taxaMensal)^(-prazo) )
         BigDecimal valorParcela = valor.multiply(taxaMensal, precisao).divide(potenciaMenosUm, precisao);
