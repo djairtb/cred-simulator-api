@@ -1,11 +1,23 @@
 package br.djair.caixa.resource;
 
+import br.djair.caixa.dto.simulacao.SimulacaoParcelaDTO;
+import br.djair.caixa.dto.simulacao.SimulacaoRequest;
+import br.djair.caixa.dto.simulacao.SimulacaoResponse;
+import br.djair.caixa.dto.simulacao.SimulacaoTipoDTO;
 import br.djair.caixa.interceptor.TelemetriaNotation;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import br.djair.caixa.model.produto.Produto;
+import br.djair.caixa.model.simulacao.Simulacao;
+import br.djair.caixa.model.simulacao.SimulacaoParcela;
+import br.djair.caixa.model.enums.TipoParcelaEnum;
+import br.djair.caixa.service.ProdutoService;
+import br.djair.caixa.service.simulacao.SimulacaoService;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -13,8 +25,57 @@ import jakarta.ws.rs.core.MediaType;
 @TelemetriaNotation
 
 public class SimulacaoResource {
-    @GET
-    public String getLorem() {
-        return "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+    @Inject
+    SimulacaoService simulacaoService;
+    @Inject
+    ProdutoService produtoService;
+
+    @POST
+    public Response simular(SimulacaoRequest request) {
+        Simulacao novaSimulacao = simulacaoService.simular(request.getValorDesejado(), request.getPrazo());
+        Produto produto = produtoService.getByCodigoProduto(novaSimulacao.getIdProduto());
+        SimulacaoResponse dto = new SimulacaoResponse();
+        dto.setIdSimulacao(novaSimulacao.getId());
+        dto.setCodigoProduto(novaSimulacao.getIdProduto());
+        dto.setDescricaoProduto(produto.getNome());
+        dto.setTaxaJuros(produto.getTaxaJuros());
+
+
+        List<SimulacaoParcelaDTO> listaSAC = new ArrayList<>();
+        List<SimulacaoParcelaDTO> listaPrice = new ArrayList<>();
+
+        for (SimulacaoParcela parcela : novaSimulacao.getParcelas()) {
+            if (parcela.getTipoParcela() == null) {
+                throw new RuntimeException("Tipo de parcela nulo");
+            }
+            if (parcela.getTipoParcela().equals(TipoParcelaEnum.SAC)) {
+                SimulacaoParcelaDTO parcelaDTO = new SimulacaoParcelaDTO(
+                        parcela.getNumeroParcela(),
+                        parcela.getValorJuros(),
+                        parcela.getValorAmortizacao(),
+                        parcela.getValorPrestacao()
+                );
+                listaSAC.add(parcelaDTO);
+            } else if (parcela.getTipoParcela().equals(TipoParcelaEnum.PRICE)) {
+                SimulacaoParcelaDTO parcelaDTO = new SimulacaoParcelaDTO(
+                        parcela.getNumeroParcela(),
+                        parcela.getValorJuros(),
+                        parcela.getValorAmortizacao(),
+                        parcela.getValorPrestacao()
+                );
+                listaPrice.add(parcelaDTO);
+            }
+        }
+        dto.setResultadoSimulacao(List.of(
+                new SimulacaoTipoDTO("SAC", listaSAC),
+                new SimulacaoTipoDTO("PRICE", listaPrice)
+        ));
+
+        return Response.ok(dto).build();
     }
+
+//    @GET
+//    public List<SimulacaoResponse> listarTodas() {
+//        return simulacaoService.listarTodas();
+//    }
 }

@@ -1,10 +1,10 @@
-package br.djair.caixa.model;
+package br.djair.caixa.model.simulacao;
 
 
-import br.djair.caixa.model.enums.StatusTelemetriaEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 
@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @Table(name = "TELEMETRIA")
+@NoArgsConstructor
 public class Telemetria {
 
     @Id

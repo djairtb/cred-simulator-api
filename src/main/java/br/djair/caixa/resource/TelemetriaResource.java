@@ -1,10 +1,9 @@
 package br.djair.caixa.resource;
 
 import br.djair.caixa.dto.telemetria.TelemetriaDTO;
-import br.djair.caixa.dto.telemetria.TelemetriaRequest;
 import br.djair.caixa.dto.telemetria.TelemetriaResponse;
 import br.djair.caixa.interceptor.TelemetriaNotation;
-import br.djair.caixa.model.Telemetria;
+import br.djair.caixa.model.simulacao.Telemetria;
 import br.djair.caixa.service.TelemetriaService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -12,8 +11,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 

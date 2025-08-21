@@ -1,9 +1,12 @@
-package br.djair.caixa.model;
+package br.djair.caixa.model.simulacao;
 
+import br.djair.caixa.model.produto.Produto;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -14,9 +17,20 @@ import java.util.List;
 
 @Entity
 @Table(name = "SIMULACAO")
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class Simulacao {
+
+    public Simulacao(Integer idProduto, Integer prazo, BigDecimal valorDesejado,List <SimulacaoParcela> parcelas) {
+        this.idProduto = idProduto;
+        this.prazo = prazo;
+        this.valorDesejado = valorDesejado;
+        this.parcelas = parcelas;
+        for (SimulacaoParcela parcela : this.parcelas) {
+            parcela.setSimulacao(this);
+        }
+    }
+
     @Id
     @Column(name = "ID_SIMULACAO" )
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,11 +52,9 @@ public class Simulacao {
     @Column(name = "VR_DESEJADO")
     private BigDecimal valorDesejado;
 
-    @NotNull
-    @Column(name = "VR_TOTAL_PARCELAS")
-    private BigDecimal valorTotalParcelas;
 
     @OneToMany(mappedBy = "simulacao", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // sinaliza que é o pai para n dar erro de serializacao de json
     private List<SimulacaoParcela> parcelas = new ArrayList<>();
+
 }

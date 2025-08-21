@@ -1,6 +1,6 @@
 package br.djair.caixa.service;
 
-import br.djair.caixa.model.Telemetria;
+import br.djair.caixa.model.simulacao.Telemetria;
 import br.djair.caixa.repository.TelemetriaRepository;
 import br.djair.caixa.store.TelemetriaMinTimeStore;
 import io.micrometer.core.instrument.Counter;
