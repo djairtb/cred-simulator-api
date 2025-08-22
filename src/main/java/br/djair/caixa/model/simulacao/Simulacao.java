@@ -49,6 +49,13 @@ public class Simulacao {
     @Column(name = "VR_DESEJADO")
     private BigDecimal valorDesejado;
 
+    @NotNull
+    @Column(name = "VR_TOTAL_SAC")
+    private BigDecimal valorTotalSac;
+
+    @NotNull
+    @Column(name = "VR_TOTAL_PRICE")
+    private BigDecimal valorTotalPrice;
 
     @OneToMany(mappedBy = "simulacao", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // sinaliza que é o pai para n dar erro de serializacao de json

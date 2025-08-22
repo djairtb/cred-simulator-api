@@ -13,6 +13,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,10 +63,13 @@ public class SimulacaoResource {
 
         List<SimulacaoResponse> dtos = new ArrayList<>();
         for(Simulacao simulacao : content) {
-            dtos.add(geraSimualcaoResponseDTO(simulacao));
+            SimulacaoResponse newDTO = geraSimualcaoResponseDTO(simulacao);
+            newDTO.setResultadoSimulacao(null); //tira para n enviar detalhes das parcelas (se quiser bsuca por id)
+            dtos.add(newDTO);
         }
 
         SimulacaoPaginadaResponse paginadaResponse = new SimulacaoPaginadaResponse(page,size,totalPages,totalElements,dtos);
+
         return Response.ok(paginadaResponse).build();
     }
 
@@ -73,12 +77,15 @@ public class SimulacaoResource {
     //GERADORES DE DTO
     public SimulacaoResponse geraSimualcaoResponseDTO (Simulacao novaSimulacao){
         Produto produto = produtoService.getByCodigoProduto(novaSimulacao.getIdProduto());
-        SimulacaoResponse dto = new SimulacaoResponse();
-        dto.setIdSimulacao(novaSimulacao.getId());
-        dto.setCodigoProduto(novaSimulacao.getIdProduto());
-        dto.setDescricaoProduto(produto.getNome());
-        dto.setTaxaJuros(produto.getTaxaJuros());
-
+        SimulacaoResponse dto = new SimulacaoResponse(novaSimulacao.getId(),
+                novaSimulacao.getIdProduto(),
+                produto.getNome(),
+                produto.getTaxaJuros(),
+                novaSimulacao.getPrazo(),
+                novaSimulacao.getValorDesejado(),
+                novaSimulacao.getValorTotalSac(),
+                novaSimulacao.getValorTotalPrice()
+        );
 
         List<SimulacaoParcelaDTO> listaSAC = new ArrayList<>();
         List<SimulacaoParcelaDTO> listaPrice = new ArrayList<>();

@@ -35,14 +35,27 @@ public class SimulacaoService {
     public Simulacao simular(BigDecimal valorDesejado, Integer prazoMeses ){
         //filtra produto
         Produto produto = this.filtrarProduto(valorDesejado,prazoMeses);
+        if (produto == null) {
+            throw new RuntimeException("Nao encontramos produtos nessa faixa de valor e tempo");
+        }
 
         //calcula as duas bagacas
         List<SimulacaoParcela> parcelasSac = calculadoraService.calcularModoSAC(valorDesejado, produto.getTaxaJuros(), prazoMeses);
         List<SimulacaoParcela> parcelasPrice = calculadoraService.calcularModoPrice(valorDesejado, produto.getTaxaJuros(), prazoMeses);
 
+        BigDecimal valorTotalSac = BigDecimal.ZERO;
+        for(SimulacaoParcela parcela : parcelasSac) {
+            valorTotalSac = valorTotalSac.add(parcela.getValorPrestacao());
+        }
+        BigDecimal valorTotalPrice = BigDecimal.ZERO;
+        for(SimulacaoParcela parcela : parcelasPrice) {
+            valorTotalPrice = valorTotalSac.add(parcela.getValorPrestacao());
+        }
         //mergea a duas para peristir
         parcelasSac.addAll(parcelasPrice);
         Simulacao simulacao = new Simulacao(produto.getId(),prazoMeses, valorDesejado,parcelasSac);
+        simulacao.setValorTotalSac(valorTotalSac);
+        simulacao.setValorTotalPrice(valorTotalPrice);
         this.salvarSimulacao(simulacao);
 
         return simulacao;

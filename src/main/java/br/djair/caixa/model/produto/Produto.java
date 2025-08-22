@@ -2,18 +2,18 @@
 
 
     import io.quarkus.hibernate.orm.PersistenceUnit;
-    import jakarta.persistence.Column;
-    import jakarta.persistence.Entity;
-    import jakarta.persistence.Id;
-    import jakarta.persistence.Table;
+    import jakarta.persistence.*;
     import lombok.Data;
-
+    import org.hibernate.annotations.CacheConcurrencyStrategy;
+    import org.hibernate.annotations.Cache;
     import java.math.BigDecimal;
 
     //Entidade especifica do banco sql server no pacote produto
 
     @Entity
     @Data
+    @Cacheable
+    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @Table(name = "PRODUTO")
     public class Produto {
         @Id
