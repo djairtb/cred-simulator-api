@@ -1,19 +1,24 @@
 package br.djair.caixa.resource;
 
+import br.djair.caixa.dto.PaginadaResponse;
+import br.djair.caixa.dto.produto.ProdutoDTO;
 import br.djair.caixa.dto.simulacao.*;
 import br.djair.caixa.interceptor.TelemetriaNotation;
 import br.djair.caixa.model.produto.Produto;
 import br.djair.caixa.model.simulacao.Simulacao;
 import br.djair.caixa.model.simulacao.SimulacaoParcela;
 import br.djair.caixa.model.enums.TipoParcelaEnum;
+import br.djair.caixa.producer.EventHubSender;
 import br.djair.caixa.service.ProdutoService;
 import br.djair.caixa.service.simulacao.SimulacaoService;
+import br.djair.caixa.util.PaginationUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +29,8 @@ import java.util.List;
 
 public class SimulacaoResource {
     @Inject
+    EventHubSender eventHubSender;
+    @Inject
     SimulacaoService simulacaoService;
     @Inject
     ProdutoService produtoService;
@@ -32,47 +39,50 @@ public class SimulacaoResource {
     public Response simular(SimulacaoRequest request) {
         Simulacao novaSimulacao = simulacaoService.simular(request.getValorDesejado(), request.getPrazo());
         SimulacaoResponse dto = geraSimualcaoResponseDTO(novaSimulacao);
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            String json = mapper.writeValueAsString(dto);
+            eventHubSender.sendMessage(json);
+        }catch (JsonProcessingException e){
+            throw new RuntimeException("Erro ao converter DTO para JSON", e);
+        }catch (RuntimeException e){
+            throw new WebApplicationException("Erro ao enviar mensagem para o Event Hub", e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
         return Response.ok(dto).build();
     }
 
     @GET
     public Response listarTodas(
             @QueryParam("page") @DefaultValue("0") int page,
-            @QueryParam("size") @DefaultValue("10") int size
+            @QueryParam("size") @DefaultValue("500") int size
     ) {
-        if (page < 0 || size <= 0) {
-            throw new IllegalArgumentException("Paginacao incorreta");
-        }
         List<Simulacao> simulacoes = simulacaoService.listarTodas();
-        int totalElements = simulacoes.size();
-        int totalPages = (int) Math.ceil((double) totalElements / size);
-
-        if (page >= totalPages) {
-            throw new WebApplicationException(
-                    "pagina fora do limite x.x Total de páginas disponíveis: " + totalPages,
-                    Response.Status.BAD_REQUEST
-            );
-        }
-
-        int fromIndex = page * size;
-        if (fromIndex >= totalElements) {
-            fromIndex = Math.max(totalElements - size, 0);
-        }
-        int toIndex = Math.min(fromIndex + size, totalElements);
-        List<Simulacao> content = simulacoes.subList(fromIndex, toIndex);
-
         List<SimulacaoResponse> dtos = new ArrayList<>();
-        for(Simulacao simulacao : content) {
+        for(Simulacao simulacao : simulacoes) {
             SimulacaoResponse newDTO = geraSimualcaoResponseDTO(simulacao);
             newDTO.setResultadoSimulacao(null); //tira para n enviar detalhes das parcelas (se quiser bsuca por id)
             dtos.add(newDTO);
         }
-
-        SimulacaoPaginadaResponse paginadaResponse = new SimulacaoPaginadaResponse(page,size,totalPages,totalElements,dtos);
+        PaginadaResponse<SimulacaoResponse> paginadaResponse = PaginationUtil.paginate(dtos, page, size);
 
         return Response.ok(paginadaResponse).build();
     }
 
+    @GET
+    @Path("{id}")
+    public Response buscarPorId(@PathParam("id") Long id) {
+        if (id == null || id <= 0) {
+            throw new WebApplicationException("ID inválido", Response.Status.BAD_REQUEST);
+        }
+        Simulacao simulacao = simulacaoService.getById(id);
+        if (simulacao == null) {
+            throw new WebApplicationException("Simulação não encontrada", Response.Status.NOT_FOUND);
+        }
+        SimulacaoResponse dto = geraSimualcaoResponseDTO(simulacao);
+        return Response.ok(dto).build();
+    }
 
     //GERADORES DE DTO
     public SimulacaoResponse geraSimualcaoResponseDTO (Simulacao novaSimulacao){

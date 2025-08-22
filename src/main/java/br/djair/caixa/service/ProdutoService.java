@@ -4,7 +4,6 @@ import br.djair.caixa.model.produto.Produto;
 import br.djair.caixa.repository.produto.ProdutoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.hibernate.annotations.Cache;
 
 import java.math.BigDecimal;
 import java.util.List;

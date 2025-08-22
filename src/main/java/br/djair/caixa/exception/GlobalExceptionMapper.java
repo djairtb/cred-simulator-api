@@ -1,6 +1,6 @@
 package br.djair.caixa.exception;
 
-import br.djair.caixa.dto.error.ErrorResponse;
+import br.djair.caixa.dto.ErrorResponse;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;

@@ -66,4 +66,8 @@ public class SimulacaoService {
         return todas;
     }
 
+    public Simulacao getById(Long id) {
+        return simulacaoRepository.findById(id);
+    }
+
 }
